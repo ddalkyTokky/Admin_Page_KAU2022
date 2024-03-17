@@ -16,9 +16,7 @@
 |테스트/발표준비|||||||||||||∎|∎|
 
 # Connection Check
-
-![image](https://github.com/ddalkyTokky/Admin_Page_KAU2022/assets/47583083/06120984-dfe5-4b41-a51a-7ae1022d4cc6)
+![noname01](https://github.com/ddalkyTokky/Admin_Page_KAU2022/assets/47583083/d1531df9-5147-4d79-98fc-269f72317108)
 
 # Encrypted Password
-
-![image](https://github.com/ddalkyTokky/Admin_Page_KAU2022/assets/47583083/5483313f-9641-49a0-88f3-8e41b755c847)
+![2](https://github.com/ddalkyTokky/Admin_Page_KAU2022/assets/47583083/42be9c4a-ae03-4015-99fc-d52add12e34d)
