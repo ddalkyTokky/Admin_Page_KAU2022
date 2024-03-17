@@ -4,7 +4,7 @@
 >**[Jenkins](https://github.com/ddalkyTokky/Admin_Page_KAU2022/tree/Jenkins)**
 
 # Related Lectures
->**[[리뉴얼] Node.js 교과서 - 기본부터 프로젝트 실습까지](https://www.inflearn.com/course/%EB%85%B8%EB%93%9C-%EA%B5%90%EA%B3%BC%EC%84%9C/dashboard)**
+>**[[리뉴얼] Node.js 교과서 - 기본부터 프로젝트 실습까지](https://www.inflearn.com/course/%EB%85%B8%EB%93%9C-%EA%B5%90%EA%B3%BC%EC%84%9C/dashboard)**       
 >**[Prisma로 알아보는 postgreSQL와 mongoDB](https://www.inflearn.com/course/prisma-postgresql/dashboard)**
 
 # Poster
