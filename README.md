@@ -5,4 +5,4 @@
 
 # Admin_Page_KAU2022 DataServer
 
-![Uploading R&D포스터_최종_page-0001.jpg…]()
+![R D포스터_최종_page-0001](https://github.com/ddalkyTokky/Admin_Page_KAU2022/assets/47583083/c5ffb9f6-93a1-402b-b160-8b7d79346ea5)
