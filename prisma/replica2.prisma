@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./replica2Client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("Replica2_DB_URL")
+}
+
+model lands {
+  id           Int           @id @default(autoincrement())
+  created_at   DateTime      @default(now()) @db.Timestamp(6)
+  updated_at   DateTime      @default(now()) @db.Timestamp(6)
+  type         String        @default("") @db.VarChar
+  village_name String        @default("") @db.VarChar
+  status       String        @db.VarChar
+  geometry     Json          @db.Json
+  x            String        @db.VarChar
+  y            String        @db.VarChar
+  area         Decimal       @db.Decimal
+  extra        Json          @db.Json
+  user_id      Int
+  address      String        @default("") @db.VarChar
+  users        users         @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tasks_lands  tasks_lands[]
+
+  @@unique([user_id, x, y], map: "lands__user_id_x_y")
+}
+
+model orders {
+  id            Int       @id @default(autoincrement())
+  name          String    @default("") @db.VarChar
+  external_uid  String    @db.VarChar
+  customer_uid  String    @db.VarChar
+  merchant_uid  String    @db.VarChar
+  req_amount    Int
+  paid_amount   Int       @default(0)
+  source        String    @default("") @db.VarChar
+  status        String    @default("") @db.VarChar
+  extra         Json      @default("{}") @db.Json
+  user_id       Int
+  task_id       Int
+  issued_at     DateTime? @db.Timestamp(6)
+  expired_at    DateTime? @db.Timestamp(6)
+  created_at    DateTime  @default(now()) @db.Timestamp(6)
+  updated_at    DateTime  @default(now()) @db.Timestamp(6)
+  cancel_amount Int       @default(0)
+  tasks         tasks     @relation(fields: [task_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users         users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([customer_uid], map: "orders__customer_uid")
+  @@index([external_uid], map: "orders__external_uid")
+  @@index([merchant_uid], map: "orders__merchant_uid")
+}
+
+model schema_migrations {
+  version BigInt  @id
+  dirty   Boolean
+}
+
+model services {
+  id          Int      @id @default(autoincrement())
+  service_key String   @unique(map: "services__service_key") @db.VarChar
+  source      String   @db.VarChar
+  created_at  DateTime @default(now()) @db.Timestamp(6)
+  updated_at  DateTime @default(now()) @db.Timestamp(6)
+  uri         String   @default("") @db.VarChar
+}
+
+model tasks {
+  id                  Int           @id @default(autoincrement())
+  name                String        @default("") @db.VarChar
+  status              String        @default("") @db.VarChar
+  user_id             Int
+  extra               Json          @default("{}") @db.Json
+  source              String        @default("") @db.VarChar
+  external_id         Int           @default(0)
+  created_at          DateTime      @default(now()) @db.Timestamp(6)
+  updated_at          DateTime      @default(now()) @db.Timestamp(6)
+  expected_start_date DateTime      @default(now()) @db.Timestamp(6)
+  expected_end_date   DateTime      @default(now()) @db.Timestamp(6)
+  users               users         @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  orders              orders[]
+  tasks_lands         tasks_lands[]
+
+  @@index([expected_start_date, expected_end_date], map: "tasks__expected_start_date_expected_end_date")
+  @@index([external_id], map: "tasks__external_id")
+}
+
+model tasks_lands {
+  id          Int      @id @default(autoincrement())
+  created_at  DateTime @default(now()) @db.Timestamp(6)
+  updated_at  DateTime @default(now()) @db.Timestamp(6)
+  task_id     Int
+  land_id     Int
+  external_id Int      @default(0)
+  sync        Boolean  @default(false)
+  lands       lands    @relation(fields: [land_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tasks       tasks    @relation(fields: [task_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([task_id, land_id], map: "tasks_lands__task_id_land_id")
+}
+
+model users {
+  id              Int      @id @default(autoincrement())
+  username        String   @db.VarChar
+  phone           String   @db.VarChar
+  hashed_password String   @db.VarChar
+  access_token    String   @unique(map: "users__access_token") @db.VarChar
+  verify          String   @default("") @db.VarChar
+  source          String   @default("") @db.VarChar
+  external_id     String   @default("") @db.VarChar
+  created_at      DateTime @default(now()) @db.Timestamp(6)
+  updated_at      DateTime @default(now()) @db.Timestamp(6)
+  name            String   @default("") @db.VarChar
+  is_verified     Boolean  @default(false)
+  default_card_id String   @default("") @db.VarChar
+  is_active       Boolean  @default(true)
+  lands           lands[]
+  orders          orders[]
+  tasks           tasks[]
+
+  @@unique([username, external_id], map: "users__username_external_id")
+  @@index([source], map: "users__source")
+}

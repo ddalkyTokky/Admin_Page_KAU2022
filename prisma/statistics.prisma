@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./statisticsClient"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE2_URL")
+}
+
+
+model countTasks {
+  createdAt String @id
+  CREATED   Int
+  READY     Int
+  ASSIGNED  Int
+  ING       Int
+  DONE      Int
+}
+
+model countTG {
+  createdAt String @id
+  CREATED   Int
+  READY     Int
+  UPLOADED  Int
+  GENERATED       Int
+}
+
+model countTD {
+  createdAt String @id
+  READY Int
+  DONE Int
+  NOT_FOUND Int
+  DELETED Int
+  ING Int
+
+}
+
+model countT {
+  createdAt String @id
+  CREATED Int
+  ING Int
+  DONE Int
+}

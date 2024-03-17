@@ -1,0 +1,576 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./replicaClient"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("Replica_DB_URL")
+}
+
+model Accounts {
+  id                              Int                   @id @default(autoincrement())
+  phone                           String?               @db.VarChar(255)
+  verifyToken                     Int?
+  createdAt                       DateTime              @db.Timestamptz(6)
+  updatedAt                       DateTime              @db.Timestamptz(6)
+  profile                         Json?                 @db.Json
+  isAdmin                         Boolean?              @default(false)
+  email                           String?               @db.VarChar(255)
+  password                        String?               @db.VarChar(255)
+  name                            String?               @db.VarChar(255)
+  isVerify                        Boolean?              @default(false)
+  isApprove                       Boolean?              @default(true)
+  ServiceKey                      String?               @db.VarChar(255)
+  Services                        Services?             @relation(fields: [ServiceKey], references: [key], onUpdate: NoAction)
+  Alerts                          Alerts[]
+  Careers                         Careers[]
+  CustomerTaskDetails             CustomerTaskDetails[]
+  Customers                       Customers[]
+  Discounts                       Discounts[]
+  Lands                           Lands[]
+  Notifications                   Notifications[]
+  OrderHistories                  OrderHistories[]
+  Orders                          Orders[]
+  Permissions                     Permissions[]
+  PostAccounts                    PostAccounts[]
+  Posts                           Posts[]
+  Reports                         Reports[]
+  Statistics                      Statistics[]
+  Subscribes                      Subscribes[]
+  TaskDetailResources             TaskDetailResources[]
+  TaskDetails                     TaskDetails[]
+  TaskGroups                      TaskGroups[]
+  Tasks                           Tasks[]
+  TeamAgents                      TeamAgents[]
+  Teams_AccountsToTeams_AccountId Teams[]               @relation("AccountsToTeams_AccountId")
+  Teams_AccountsToTeams_AgentId   Teams[]               @relation("AccountsToTeams_AgentId")
+}
+
+model Alerts {
+  id          BigInt    @id @default(autoincrement())
+  title       String?   @db.VarChar(255)
+  type        String    @db.VarChar(255)
+  category    String    @db.VarChar(255)
+  AccountId   Int?
+  ReferenceId Int
+  isRead      Boolean?  @default(false)
+  createdAt   DateTime  @db.Timestamptz(6)
+  updatedAt   DateTime  @db.Timestamptz(6)
+  data        Json?     @default("{}")
+  Accounts    Accounts? @relation(fields: [AccountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([AccountId], map: "alerts__account_id")
+  @@index([AccountId, isRead], map: "alerts__account_id_is_read")
+  @@index([AccountId, type, ReferenceId, isRead], map: "alerts__account_id_type__reference_id_is_read")
+}
+
+model Careers {
+  id        Int       @id @default(autoincrement())
+  AccountId Int?
+  title     String?   @db.VarChar(255)
+  startDate DateTime? @db.Timestamptz(6)
+  endDate   DateTime? @db.Timestamptz(6)
+  content   String?
+  createdAt DateTime  @db.Timestamptz(6)
+  updatedAt DateTime  @db.Timestamptz(6)
+  Accounts  Accounts? @relation(fields: [AccountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([AccountId], map: "careers__account_id")
+}
+
+model Coupons {
+  id        Int         @id @default(autoincrement())
+  name      String?     @db.VarChar(255)
+  code      String?     @db.VarChar(255)
+  quantity  Int?
+  maxRetry  Int?        @default(1)
+  unit      String?     @default("price") @db.VarChar(255)
+  value     Int?
+  startedAt DateTime?   @db.Timestamptz(6)
+  endedAt   DateTime?   @db.Timestamptz(6)
+  createdAt DateTime    @db.Timestamptz(6)
+  extra     Json?       @default("{}") @db.Json
+  updatedAt DateTime    @db.Timestamptz(6)
+  Discounts Discounts[]
+
+  @@index([code], map: "coupons_code")
+}
+
+model CustomerTaskDetails {
+  id          Int        @id @default(autoincrement())
+  AccountId   Int?
+  CustomerId  Int?
+  type        String?    @db.VarChar(255)
+  address     String?    @db.VarChar(255)
+  villageName String?    @db.VarChar(255)
+  category    String?    @db.VarChar(255)
+  etc         String?    @db.VarChar(255)
+  geometry    Json?      @db.Json
+  x           String?    @db.VarChar(255)
+  y           String?    @db.VarChar(255)
+  area        Decimal?   @db.Decimal(19, 10)
+  createdAt   DateTime   @db.Timestamptz(6)
+  updatedAt   DateTime   @db.Timestamptz(6)
+  Accounts    Accounts?  @relation(fields: [AccountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Customers   Customers? @relation(fields: [CustomerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([AccountId, CustomerId, x, y], map: "customer_task_details__account_id__customer_id_x_y")
+  @@index([AccountId], map: "customer_task_details__account_id")
+  @@index([CustomerId], map: "customer_task_details__customer_id")
+}
+
+model Customers {
+  id                  Int                   @id @default(autoincrement())
+  name                String?               @db.VarChar(255)
+  email               String?               @db.VarChar(255)
+  phone               String?               @db.VarChar(255)
+  crops               String[]              @db.VarChar(255)
+  AccountId           Int?
+  createdAt           DateTime              @db.Timestamptz(6)
+  updatedAt           DateTime              @db.Timestamptz(6)
+  Accounts            Accounts?             @relation(fields: [AccountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  CustomerTaskDetails CustomerTaskDetails[]
+
+  @@unique([AccountId, phone, email], map: "customers__account_id_phone_email")
+  @@index([AccountId], map: "customers__account_id")
+}
+
+model Discounts {
+  id        Int       @id @default(autoincrement())
+  name      String?   @db.VarChar(255)
+  price     Float?
+  createdAt DateTime  @db.Timestamptz(6)
+  updatedAt DateTime  @db.Timestamptz(6)
+  AccountId Int?
+  OrderId   Int?
+  CouponId  Int?
+  ProductId Int?
+  filters   Json?     @default("{}") @db.Json
+  Accounts  Accounts? @relation(fields: [AccountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Coupons   Coupons?  @relation(fields: [CouponId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Orders    Orders?   @relation(fields: [OrderId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Products  Products? @relation(fields: [ProductId], references: [id])
+
+  @@index([AccountId], map: "discounts__account_id")
+  @@index([CouponId], map: "discounts__coupon_id")
+  @@index([OrderId], map: "discounts__order_id")
+  @@index([ProductId], map: "discounts__product_id")
+}
+
+model Events {
+  id        BigInt   @id @default(autoincrement())
+  table     String   @db.VarChar(255)
+  action    String?  @db.VarChar(255)
+  createdBy Int?
+  data      Json?
+  createdAt DateTime @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+
+  @@index([action, createdAt], map: "events_action_created_at")
+  @@index([createdBy], map: "events_created_by")
+  @@index([table], map: "events_table")
+}
+
+model Geos {
+  id        Int      @id @default(autoincrement())
+  address   String?  @db.VarChar(255)
+  geometry  Json?    @db.Json
+  x         String?  @db.VarChar(255)
+  y         String?  @db.VarChar(255)
+  pnu       String?  @db.VarChar(255)
+  area      Decimal? @db.Decimal(19, 10)
+  createdAt DateTime @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+
+  @@index([address], map: "geos_address")
+  @@index([x, y], map: "geos_x_y")
+}
+
+model Lands {
+  id          BigInt   @id @default(autoincrement())
+  AccountId   Int
+  is_active   Boolean? @default(true)
+  type        String?  @db.VarChar(255)
+  villageName String?  @db.VarChar(255)
+  status      String?  @db.VarChar(255)
+  geometry    Json?    @db.Json
+  x           String?  @db.VarChar(255)
+  y           String?  @db.VarChar(255)
+  area        Decimal? @db.Decimal(19, 10)
+  extra       Json?    @default("{}")
+  createdAt   DateTime @db.Timestamptz(6)
+  updatedAt   DateTime @db.Timestamptz(6)
+  Accounts    Accounts @relation(fields: [AccountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model Notices {
+  id          Int       @id @default(autoincrement())
+  startDate   DateTime? @db.Timestamptz(6)
+  endDate     DateTime? @db.Timestamptz(6)
+  imageURL    String?   @db.VarChar(255)
+  externalURL String?   @db.VarChar(255)
+  order       Int?
+  active      Boolean?
+  deletedDate DateTime? @db.Timestamptz(6)
+  createdAt   DateTime  @db.Timestamptz(6)
+  updatedAt   DateTime  @db.Timestamptz(6)
+  name        String?   @db.VarChar(255)
+
+  @@index([active, startDate, endDate, deletedDate], map: "notices_active_start_date_end_date_deleted_date")
+  @@index([order], map: "notices_order")
+}
+
+model Notifications {
+  id              BigInt    @id @default(autoincrement())
+  AccountId       Int
+  fcmToken        String    @db.VarChar(170)
+  sendedAt        DateTime? @db.Timestamptz(6)
+  isSuccess       Boolean?
+  failReason      String?   @db.VarChar(255)
+  eventCode       String    @db.VarChar(2)
+  sendCode        String    @db.VarChar(2)
+  reservationCode String    @db.VarChar(2)
+  sendCycleCode   String    @db.VarChar(2)
+  title           String    @db.VarChar(255)
+  message         String
+  image           String?
+  createdAt       DateTime  @db.Timestamptz(6)
+  updatedAt       DateTime  @db.Timestamptz(6)
+  Accounts        Accounts  @relation(fields: [AccountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([AccountId], map: "notifications__account_id")
+}
+
+model OrderHistories {
+  id            Int       @id @default(autoincrement())
+  name          String?   @db.VarChar(255)
+  payment       String?   @db.VarChar(255)
+  paymentMethod String?   @default("card") @db.VarChar(255)
+  externalUid   String?   @db.VarChar(255)
+  customerUid   String?   @db.VarChar(255)
+  merchantUid   String?   @db.VarChar(255)
+  reqAmount     Int?
+  paidAmount    Int?
+  status        String?   @db.VarChar(255)
+  extra         Json?     @default("{}") @db.Json
+  AccountId     Int?
+  ProductId     Int?
+  OrderId       Int?
+  createdAt     DateTime  @db.Timestamptz(6)
+  updatedAt     DateTime  @db.Timestamptz(6)
+  Accounts      Accounts? @relation(fields: [AccountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Orders        Orders?   @relation(fields: [OrderId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Products      Products? @relation(fields: [ProductId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([AccountId], map: "order_histories__account_id")
+  @@index([OrderId], map: "order_histories__order_id")
+  @@index([ProductId], map: "order_histories__product_id")
+}
+
+model Orders {
+  id             Int              @id @default(autoincrement())
+  name           String?          @db.VarChar(255)
+  payment        String?          @db.VarChar(255)
+  paymentMethod  String?          @default("card") @db.VarChar(255)
+  externalUid    String?          @db.VarChar(255)
+  customerUid    String?          @db.VarChar(255)
+  merchantUid    String?          @db.VarChar(255)
+  reqAmount      Int?
+  paidAmount     Int?
+  status         String?          @db.VarChar(255)
+  extra          Json?            @default("{}") @db.Json
+  AccountId      Int?
+  ProductId      Int?
+  createdAt      DateTime         @db.Timestamptz(6)
+  updatedAt      DateTime         @db.Timestamptz(6)
+  expiredAt      DateTime?        @db.Timestamptz(6)
+  isSubscribe    Boolean?         @default(false)
+  issuedAt       DateTime?        @db.Timestamptz(6)
+  Accounts       Accounts?        @relation(fields: [AccountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Products       Products?        @relation(fields: [ProductId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Discounts      Discounts[]
+  OrderHistories OrderHistories[]
+
+  @@index([AccountId], map: "orders__account_id")
+  @@index([ProductId], map: "orders__product_id")
+}
+
+model Permissions {
+  id         Int                  @id @default(autoincrement())
+  resource   String               @db.VarChar(255)
+  key        enum_Permissions_key
+  resourceId Int
+  AccountId  Int?
+  createdAt  DateTime             @db.Timestamptz(6)
+  updatedAt  DateTime             @db.Timestamptz(6)
+  Accounts   Accounts?            @relation(fields: [AccountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([AccountId], map: "permissions__account_id")
+  @@index([AccountId, resource, key], map: "permissions__account_id_resource_key")
+}
+
+model PostAccounts {
+  id        Int       @id @default(autoincrement())
+  AccountId Int?
+  PostId    Int?
+  type      String?   @default("participate") @db.VarChar(255)
+  createdAt DateTime  @db.Timestamptz(6)
+  updatedAt DateTime  @db.Timestamptz(6)
+  Accounts  Accounts? @relation(fields: [AccountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Posts     Posts?    @relation(fields: [PostId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([type, PostId, AccountId], map: "post_accounts_type__post_id__account_id")
+  @@index([AccountId], map: "post_accounts__account_id")
+  @@index([PostId], map: "post_accounts__post_id")
+}
+
+model Posts {
+  id             Int            @id @default(autoincrement())
+  category       String?        @default("JOB") @db.VarChar(255)
+  type           String[]       @db.VarChar(255)
+  content        String?
+  unit           String?        @db.VarChar(255)
+  price          Int?
+  location       String[]       @db.VarChar(255)
+  area           Decimal?       @db.Decimal(19, 10)
+  title          String?        @db.VarChar(255)
+  createdAt      DateTime       @db.Timestamptz(6)
+  updatedAt      DateTime       @db.Timestamptz(6)
+  startDate      DateTime?      @db.Timestamptz(6)
+  endDate        DateTime?      @db.Timestamptz(6)
+  status         String?        @db.VarChar(255)
+  viewCount      Int?           @default(0)
+  AccountId      Int?
+  contactName    String?        @db.VarChar(255)
+  contactPhone   String?        @db.VarChar(255)
+  contactEmail   String?        @db.VarChar(255)
+  qualifications String[]       @db.VarChar(255)
+  Accounts       Accounts?      @relation(fields: [AccountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  PostAccounts   PostAccounts[]
+
+  @@index([AccountId], map: "posts__account_id")
+  @@index([category], map: "posts_category")
+}
+
+model Products {
+  id             Int              @id @default(autoincrement())
+  name           String?          @db.VarChar(255)
+  description    String?          @db.VarChar(255)
+  price          Int?
+  duration       Int?
+  filters        Json?            @default("{}") @db.Json
+  isActive       Boolean?         @default(false)
+  createdAt      DateTime         @db.Timestamptz(6)
+  updatedAt      DateTime         @db.Timestamptz(6)
+  isSubscribe    Boolean?         @default(false)
+  Discounts      Discounts[]
+  OrderHistories OrderHistories[]
+  Orders         Orders[]
+}
+
+model Reports {
+  id        Int       @id @default(autoincrement())
+  name      String?   @db.VarChar(255)
+  isActive  Boolean?
+  isPrivate Boolean?
+  password  String?   @db.VarChar(255)
+  createdAt DateTime  @db.Timestamptz(6)
+  updatedAt DateTime  @db.Timestamptz(6)
+  TaskId    Int?
+  AccountId Int?
+  Accounts  Accounts? @relation(fields: [AccountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Tasks     Tasks?    @relation(fields: [TaskId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([AccountId], map: "reports__account_id")
+  @@index([TaskId], map: "reports__task_id")
+}
+
+model SequelizeMeta {
+  name String @id @db.VarChar(255)
+}
+
+model Services {
+  key         String     @id @unique(map: "services_key") @db.VarChar(255)
+  description String?
+  isActive    Boolean?   @default(true)
+  createdAt   DateTime   @db.Timestamptz(6)
+  updatedAt   DateTime   @db.Timestamptz(6)
+  Accounts    Accounts[]
+}
+
+model Statistics {
+  id               Int       @id @default(autoincrement())
+  AgentId          Int?
+  TeamId           Int?
+  TaskId           Int?
+  dailyWorkload    Decimal?  @db.Decimal(19, 10)
+  completedByOwner Decimal?  @db.Decimal(19, 10)
+  completedBySelf  Decimal?  @db.Decimal(19, 10)
+  createdAt        DateTime  @db.Timestamptz(6)
+  updatedAt        DateTime  @db.Timestamptz(6)
+  Accounts         Accounts? @relation(fields: [AgentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Tasks            Tasks?    @relation(fields: [TaskId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Teams            Teams?    @relation(fields: [TeamId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([AgentId], map: "statistics__agent_id")
+  @@index([TaskId], map: "statistics__task_id")
+  @@index([TeamId], map: "statistics__team_id")
+}
+
+model Subscribes {
+  id        Int      @id @default(autoincrement())
+  AccountId Int
+  fcmToken  String   @db.VarChar(170)
+  createdAt DateTime @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+  Accounts  Accounts @relation(fields: [AccountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([AccountId], map: "subscribes__account_id")
+}
+
+model TaskDetailResources {
+  id           Int          @id @default(autoincrement())
+  content      String?
+  type         String?      @db.VarChar(255)
+  createdAt    DateTime     @db.Timestamptz(6)
+  updatedAt    DateTime     @db.Timestamptz(6)
+  TaskDetailId Int?
+  AccountId    Int?
+  group        String?      @default("normal") @db.VarChar(255)
+  Accounts     Accounts?    @relation(fields: [AccountId], references: [id])
+  TaskDetails  TaskDetails? @relation(fields: [TaskDetailId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([AccountId], map: "task_detail_resources__account_id")
+  @@index([TaskDetailId], map: "task_detail_resources__task_detail_id")
+  @@index([group], map: "task_detail_resources_group")
+}
+
+model TaskDetails {
+  id                  Int                   @id @default(autoincrement())
+  AccountId           Int?
+  TaskId              Int?
+  type                String?               @db.VarChar(255)
+  address             String?               @db.VarChar(255)
+  villageName         String?               @db.VarChar(255)
+  pushUser            String?               @db.VarChar(255)
+  category            String?               @db.VarChar(255)
+  etc                 String?               @db.VarChar(255)
+  status              String?               @db.VarChar(255)
+  geometry            Json?                 @db.Json
+  createdAt           DateTime              @db.Timestamptz(6)
+  updatedAt           DateTime              @db.Timestamptz(6)
+  assignedDays        Int?
+  assignedUser        String?               @db.VarChar(255)
+  TeamId              Int?
+  y                   String?               @db.VarChar(255)
+  x                   String?               @db.VarChar(255)
+  area                Decimal?              @db.Decimal(19, 10)
+  pushPhone           String?               @db.VarChar(255)
+  startedAt           DateTime?             @db.Timestamptz(6)
+  endedAt             DateTime?             @db.Timestamptz(6)
+  memo                String?
+  extra               Json?                 @default("{}") @db.Json
+  Accounts            Accounts?             @relation(fields: [AccountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Tasks               Tasks?                @relation(fields: [TaskId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Teams               Teams?                @relation(fields: [TeamId], references: [id], onUpdate: NoAction)
+  TaskDetailResources TaskDetailResources[]
+
+  @@index([AccountId], map: "task_details__account_id")
+  @@index([TaskId], map: "task_details__task_id")
+  @@index([TaskId, status], map: "task_details__task_id_status")
+  @@index([TeamId], map: "task_details__team_id")
+  @@index([area], map: "task_details_area")
+}
+
+model TaskGroups {
+  id         Int       @id @default(autoincrement())
+  path       String?   @db.VarChar(255)
+  name       String?   @db.VarChar(255)
+  status     String?   @db.VarChar(255)
+  AccountId  Int?
+  createdAt  DateTime  @db.Timestamptz(6)
+  updatedAt  DateTime  @db.Timestamptz(6)
+  area       Decimal?  @db.Decimal(19, 10)
+  createType String?   @default("") @db.VarChar(255)
+  extra      Json?     @default("{}") @db.Json
+  Accounts   Accounts? @relation(fields: [AccountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Tasks      Tasks[]
+
+  @@index([AccountId], map: "task_groups__account_id")
+  @@index([createType, status], map: "task_groups_create_type_status")
+}
+
+model Tasks {
+  id              Int           @id @default(autoincrement())
+  name            String?       @db.VarChar(255)
+  status          String?       @db.VarChar(255)
+  AccountId       Int?
+  createdAt       DateTime      @db.Timestamptz(6)
+  updatedAt       DateTime      @db.Timestamptz(6)
+  workingDays     Int?
+  workingTeamsCnt Int?
+  TaskGroupId     Int?
+  startDate       DateTime?     @db.Timestamptz(6)
+  endDate         DateTime?     @db.Timestamptz(6)
+  area            Decimal?      @db.Decimal(19, 10)
+  isPaid          Boolean?
+  createType      String?       @default("") @db.VarChar(255)
+  extra           Json?         @default("{}") @db.Json
+  real_area       Decimal?      @db.Decimal(19, 10)
+  Accounts        Accounts?     @relation(fields: [AccountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  TaskGroups      TaskGroups?   @relation(fields: [TaskGroupId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Reports         Reports[]
+  Statistics      Statistics[]
+  TaskDetails     TaskDetails[]
+  Teams           Teams[]
+
+  @@index([AccountId], map: "tasks__account_id")
+  @@index([TaskGroupId], map: "tasks__task_group_id")
+  @@index([area], map: "tasks_area")
+  @@index([createType, status], map: "tasks_create_type_status")
+}
+
+model TeamAgents {
+  AgentId   Int
+  TeamId    Int
+  isActive  Boolean?
+  createdAt DateTime @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+  Accounts  Accounts @relation(fields: [AgentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Teams     Teams    @relation(fields: [TeamId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([AgentId, TeamId])
+  @@unique([AgentId, TeamId], map: "team_agents__agent_id__team_id")
+}
+
+model Teams {
+  id                                 Int           @id @default(autoincrement())
+  name                               String?       @db.VarChar(255)
+  AccountId                          Int?
+  AgentId                            Int?
+  TaskId                             Int?
+  createdAt                          DateTime      @db.Timestamptz(6)
+  updatedAt                          DateTime      @db.Timestamptz(6)
+  status                             String?       @default("CREATED") @db.VarChar(255)
+  area                               Decimal?      @db.Decimal(19, 10)
+  alias                              String?       @default("") @db.VarChar(255)
+  Accounts_AccountsToTeams_AccountId Accounts?     @relation("AccountsToTeams_AccountId", fields: [AccountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Accounts_AccountsToTeams_AgentId   Accounts?     @relation("AccountsToTeams_AgentId", fields: [AgentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  Tasks                              Tasks?        @relation(fields: [TaskId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Statistics                         Statistics[]
+  TaskDetails                        TaskDetails[]
+  TeamAgents                         TeamAgents[]
+
+  @@index([AccountId], map: "teams__account_id")
+  @@index([AgentId], map: "teams__agent_id")
+  @@index([TaskId], map: "teams__task_id")
+  @@index([area], map: "teams_area")
+}
+
+enum enum_Permissions_key {
+  read
+  create
+  update
+  delete
+}
