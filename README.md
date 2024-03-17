@@ -21,5 +21,4 @@
 
 # Encrypted Password
 
-![Uploading image.png…]()
-
+![image](https://github.com/ddalkyTokky/Admin_Page_KAU2022/assets/47583083/5483313f-9641-49a0-88f3-8e41b755c847)
