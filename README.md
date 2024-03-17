@@ -1,7 +1,11 @@
 # Other Branches
->[DataServer](https://github.com/ddalkyTokky/Admin_Page_KAU2022/tree/DataServer)      
->[UIServer](https://github.com/ddalkyTokky/Admin_Page_KAU2022/tree/UIServer)      
->[Jenkins](https://github.com/ddalkyTokky/Admin_Page_KAU2022/tree/Jenkins)
+>**[DataServer](https://github.com/ddalkyTokky/Admin_Page_KAU2022/tree/DataServer)**      
+>**[UIServer](https://github.com/ddalkyTokky/Admin_Page_KAU2022/tree/UIServer)**      
+>**[Jenkins](https://github.com/ddalkyTokky/Admin_Page_KAU2022/tree/Jenkins)**
+
+# Related Lectures
+>**[[리뉴얼] Node.js 교과서 - 기본부터 프로젝트 실습까지](https://www.inflearn.com/course/%EB%85%B8%EB%93%9C-%EA%B5%90%EA%B3%BC%EC%84%9C/dashboard)**
+>**[Prisma로 알아보는 postgreSQL와 mongoDB](https://www.inflearn.com/course/prisma-postgresql/dashboard)**
 
 # Poster
 ![R D포스터_최종_page-0001](https://github.com/ddalkyTokky/Admin_Page_KAU2022/assets/47583083/c5ffb9f6-93a1-402b-b160-8b7d79346ea5)
