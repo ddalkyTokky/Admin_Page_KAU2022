@@ -1,0 +1,22 @@
+server {
+    listen [::]:80;
+    listen 80;
+
+    server_name jenkins.domain.com;
+
+    location / {
+        proxy_set_header        Host $host:$server_port;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header        X-Forwarded-Proto $scheme;
+
+        proxy_pass          http://localhost:${내부 젠킨스 포트번호};
+        proxy_read_timeout  90;
+
+        proxy_redirect      http://localhost:${내부 젠킨스 포트번호} ${외부 도메인 이름};
+
+        proxy_http_version 1.1;
+        proxy_request_buffering off;
+        add_header 'X-SSH-Endpoint' '${https를 제외한 외부 도메인 이름}:${내부 젠킨스 포트번호}' always;
+    } 
+}
