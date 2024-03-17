@@ -18,3 +18,8 @@
 # Connection Check
 
 ![image](https://github.com/ddalkyTokky/Admin_Page_KAU2022/assets/47583083/06120984-dfe5-4b41-a51a-7ae1022d4cc6)
+
+# Encrypted Password
+
+![Uploading image.png…]()
+
